@@ -1,0 +1,33 @@
+test_convergence_after_resume (test_replication.ReplicationTests)
+Requirement 3: after resume, Secondary catches up and matches. ... [  0.000s] [REPLICATOR] replication PAUSED (updates will queue up)
+[  0.000s] [PRIMARY   ] write stock=9 (v1)
+[  0.000s] [REPLICATOR] replication RESUMED
+[  0.053s] [SECONDARY ] apply stock=9 (v1)
+ok
+test_multiple_writes_while_paused_apply_in_order (test_replication.ReplicationTests)
+Edge case: queued writes replay in order; final value wins. ... [  0.053s] [REPLICATOR] replication PAUSED (updates will queue up)
+[  0.053s] [PRIMARY   ] write stock=9 (v1)
+[  0.053s] [PRIMARY   ] write stock=8 (v2)
+[  0.053s] [PRIMARY   ] write stock=7 (v3)
+[  0.053s] [REPLICATOR] replication RESUMED
+[  0.109s] [SECONDARY ] apply stock=9 (v1)
+[  0.164s] [SECONDARY ] apply stock=8 (v2)
+[  0.219s] [SECONDARY ] apply stock=7 (v3)
+ok
+test_replication_propagates_to_secondary (test_replication.ReplicationTests)
+Requirement 1: Primary gets the value, Secondary eventually matches. ... [  0.220s] [PRIMARY   ] write stock=9 (v1)
+[  0.271s] [SECONDARY ] apply stock=9 (v1)
+ok
+test_secondary_ignores_older_versions (test_replication.ReplicationTests)
+Edge case: an out-of-order/old update never overwrites newer data. ... ok
+test_stale_read_while_replication_paused (test_replication.ReplicationTests)
+Requirement 2: Primary=9 while Secondary still returns old 10. ... [  0.273s] [REPLICATOR] replication PAUSED (updates will queue up)
+[  0.273s] [PRIMARY   ] write stock=9 (v1)
+[  0.273s] [CLIENT    ] read primary   -> stock=9 (v1)
+[  0.273s] [CLIENT    ] read secondary -> stock=10 (v0)  <-- STALE (latest is v1)
+ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.273s
+
+OK

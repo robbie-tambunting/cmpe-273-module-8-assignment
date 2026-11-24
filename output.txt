@@ -1,0 +1,30 @@
+
+================================================================
+SCENARIO 1: Replication (Primary -> Secondary)
+================================================================
+[  0.000s] [PRIMARY   ] write stock=10 (v1)
+[  0.305s] [SECONDARY ] apply stock=10 (v1)
+[  0.306s] [CLIENT    ] read primary   -> stock=10 (v1)
+[  0.306s] [CLIENT    ] read secondary -> stock=10 (v1)
+[  0.306s] [CHECK     ] PASS: both replicas return stock=10 after replication
+
+================================================================
+SCENARIO 2: Stale read (replication delayed)
+================================================================
+[  0.306s] [REPLICATOR] replication PAUSED (updates will queue up)
+[  0.306s] [PRIMARY   ] write stock=9 (v2)
+[  0.306s] [CLIENT    ] read primary   -> stock=9 (v2)
+[  0.306s] [CLIENT    ] read secondary -> stock=10 (v1)  <-- STALE (latest is v2)
+[  0.306s] [CHECK     ] PASS: Primary returns the new value 9
+[  0.306s] [CHECK     ] PASS: Secondary still returns the old value 10 (stale read)
+
+================================================================
+SCENARIO 3: Recovery and convergence (replication resumed)
+================================================================
+[  0.306s] [REPLICATOR] replication RESUMED
+[  0.608s] [SECONDARY ] apply stock=9 (v2)
+[  0.608s] [CLIENT    ] read primary   -> stock=9 (v2)
+[  0.608s] [CLIENT    ] read secondary -> stock=9 (v2)
+[  0.608s] [CHECK     ] PASS: Secondary caught up to 9
+[  0.608s] [CHECK     ] PASS: CONVERGED: both replicas return stock=9
+
