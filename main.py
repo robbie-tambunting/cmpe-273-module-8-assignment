@@ -5,7 +5,12 @@ import sys
 from replication import Client, Primary, Replica, Replicator, log
 
 
+STEP = "--step" in sys.argv  # wait for Enter between scenarios (for screenshots)
+
+
 def banner(title):
+    if STEP:
+        input("\n[press Enter for the next scenario] ")
     print(f"\n{'=' * 64}\n{title}\n{'=' * 64}", flush=True)
 
 
