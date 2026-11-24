@@ -119,4 +119,4 @@ versions). All pass; see [`test_output.txt`](test_output.txt).
 **What tradeoff exists between reading quickly from a replica and
 guaranteeing that the reader sees the latest value?**
 
-TODO: write your 3-5 sentence reflection here.
+Reading from a replica can be faster and reduces load on the primary. However, in some cases, the replica can return stale data because replication is asynchronous. To ensure the data is the latest, you must read from the primary or wait for the replica to acknowledge each write. The tradeoff is that it adds latency and makes the system depend on the availibility of primary or replica
